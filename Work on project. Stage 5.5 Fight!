@@ -1,0 +1,133 @@
+package tictactoe
+
+import kotlin.math.abs
+
+fun main() {
+    val list2d = MutableList(3) { MutableList(3) {'_'}}
+
+//    var count = 0
+//    var firstRow = ""
+//    var secondRow = ""
+//    var thirdRow = ""
+//    for (i in inp) {
+//        count++
+//        if (count in 1..3) {
+//            firstRow += "$i "
+//            list2d[0].removeAt(count - 1)
+//            list2d[0].add(count - 1, i)
+//        }
+//        if (count in 4..6) {
+//            secondRow += "$i "
+//            list2d[1].removeAt(count - 4)
+//            list2d[1].add(count - 4, i)
+//        }
+//        if (count in 7..9) {
+//            thirdRow += "$i "
+//            list2d[2].removeAt(count - 7)
+//            list2d[2].add(count - 7, i)
+//        }
+//    }
+    printTable(list2d)
+    enterCoord(list2d)
+
+}
+
+private fun enterCoord(list2d: MutableList<MutableList<Char>>) {
+
+    print("Enter the coordinates: ")
+    val (yInp, xInp) = readln().split(" ")
+    var axelY: Int
+    var axelX: Int
+    try {
+        val axelY = yInp.toInt()
+        val axelX = xInp.toInt()
+    } catch (e: NumberFormatException) {
+        println("You should enter numbers!")
+        enterCoord(list2d)
+        return
+    }
+    if (yInp.toInt() > 3 || xInp.toInt() > 3) {
+        println("Coordinates should be from 1 to 3!")
+        enterCoord(list2d)
+        return
+    }
+    axelY = yInp.toInt()
+    axelX = xInp.toInt()
+
+    if (list2d[axelY - 1][axelX - 1] != '_') {
+        println("This cell is occupied! Choose another one!")
+        enterCoord(list2d)
+        return
+    }
+
+    var list2d = list2d
+    val checkEl = list2d[0].joinToString("") + list2d[1].joinToString("") + list2d[2].joinToString("")
+
+    var elem = if (countX(checkEl) == countO(checkEl)) {
+        'X'
+    } else {
+        'O'
+    }
+    list2d[axelY - 1].removeAt(axelX - 1)
+    list2d[axelY - 1].add(axelX - 1, elem)
+    printTable(list2d)
+    val output = list2d[0].joinToString("") + list2d[1].joinToString("") + list2d[2].joinToString("")
+    val checkResult = checkGame(output)
+    if (checkResult == "X wins" || checkResult == "O wins" || checkResult == "Draw") {
+        println(checkResult)
+        return
+    } else {
+        enterCoord(list2d)
+        return
+    }
+
+}
+
+private fun printTable(list2d: MutableList<MutableList<Char>>) {
+    println("---------")
+    println("| ${list2d[0].joinToString(" ")} |")
+    println("| ${list2d[1].joinToString(" ")} |")
+    println("| ${list2d[2].joinToString(" ")} |")
+    println("---------")
+}
+fun checkGame(output: String): String {
+    var result = ""
+    val out = output
+    val threesStringX = checkThrees(out, 'X')
+    val threesStringO = checkThrees(out, 'O')
+    val countYesX = threesStringX.count { it == 'Y' } // counts how many times "YES" matches in threeStringX
+    val countYesO = threesStringO.count { it == 'Y' } // counts how many times "YES" matches in threeStringO
+    if (countYesX == 0 && countX(out) == 5 && countO(out) == 4 ||
+        countYesO == 0 && countX(out) == 4 && countO(out) == 5) {
+        result = "Draw"
+    } else if (countYesO == 1 && countYesX == 0) {
+        result = "O wins"
+    } else if (countYesX == 0 && countX(out) + countO(out) < 9 && abs(countX(out) - countO(out)) > 1 ) {
+        result = "Impossible"
+    } else if (countYesX == 1 && countYesO == 0) {
+        result = "X wins"
+
+    } else if (countYesO >= 1 && countYesX >= 0) {
+        result = "Impossible"
+    } else if (countYesX == 0 && countX(out) + countO(out) < 9 && abs(countX(out) - countO(out)) <= 1) {
+        result = "Game not finished"
+    }
+    return result
+}
+fun checkThrees(output: String, g: Char): String {
+    val inp = output
+    val t123 = if (inp[0] == g && inp[1] == g && inp[2] == g) "YES" else "NO"
+    val t456 = if (inp[3] == g && inp[4] == g && inp[5] == g) "YES" else "NO"
+    val t789 = if (inp[6] == g && inp[7] == g && inp[8] == g) "YES" else "NO"
+    val t147 = if (inp[0] == g && inp[3] == g && inp[6] == g) "YES" else "NO"
+    val t258 = if (inp[1] == g && inp[4] == g && inp[7] == g) "YES" else "NO"
+    val t369 = if (inp[2] == g && inp[5] == g && inp[8] == g) "YES" else "NO"
+    val t159 = if (inp[0] == g && inp[4] == g && inp[8] == g) "YES" else "NO"
+    val t357 = if (inp[2] == g && inp[4] == g && inp[6] == g) "YES" else "NO"
+    val threesString = t123 + t456 + t789 + t147 + t258 + t369 + t159 +t357
+    return threesString
+}
+fun countX(output: String): Int  = output.count { it == 'X' }
+fun countO(output: String): Int  = output.count { it == 'O' }
+
+
