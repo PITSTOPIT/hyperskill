@@ -1,0 +1,124 @@
+package cinema;
+import java.util.Scanner;
+
+public class Cinema {
+    final static Scanner scanner = new Scanner(System.in);
+    static int countTickets = 0;
+    static int currentIncome = 0;
+
+    public static void main(String[] args) {
+        System.out.println("Enter the number of rows:");
+        int inpRows = scanner.nextInt();
+        System.out.println("Enter the number of seats in each row:");
+        int inpSeatsInRow = scanner.nextInt();
+        String[][] cinemaArray = new String[inpRows][inpSeatsInRow];
+        for (int i = 0; i < cinemaArray.length; i++) {
+            for (int j = 0; j < cinemaArray[i].length; j++) {
+                cinemaArray[i][j] = "S";
+            }
+        }
+
+        menu(cinemaArray);
+    }
+
+    public static void menu(String[][] cinemaArray) {
+        System.out.println("\n1. Show the seats");
+        System.out.println("2. Buy a ticket");
+        System.out.println("3. Statistics");
+        System.out.println("0. Exit");
+        int choice = scanner.nextInt();
+        switch (choice) {
+            case 1:
+                printCinema(cinemaArray);
+                break;
+            case 2:
+                buyTickets(cinemaArray);
+                break;
+            case 3:
+                stastistics(cinemaArray);
+                break;
+            case 0:
+                break;
+        }
+    }
+
+    public static void stastistics(String[][] cinemaArray) {
+        int totalIncome;
+        int totalSeats = cinemaArray.length * cinemaArray[0].length;
+        if (totalSeats <= 60) {
+            totalIncome = totalSeats * 10;
+        } else {
+            int sum_10_dollarsSeats;
+            int sum_08_dollarsSeats;
+            sum_10_dollarsSeats = (cinemaArray.length / 2 * cinemaArray[0].length) * 10;
+            sum_08_dollarsSeats = (cinemaArray.length - (cinemaArray.length / 2)) * cinemaArray[0].length * 8;
+            totalIncome = sum_10_dollarsSeats + sum_08_dollarsSeats;
+        }
+        double percentage = (100.0 / totalSeats) * countTickets;
+        System.out.println("Number of purchased tickets: %d".formatted(countTickets));
+        System.out.println("Percentage: %.2f%%".formatted(percentage));
+        System.out.println("Current income: $%d".formatted(currentIncome));
+        System.out.println("Total Income: $%d".formatted(totalIncome));
+
+        menu(cinemaArray);
+        return;
+
+    }
+
+    public static void printCinema(String[][] cinemaArray) {
+        System.out.println("\nCinema:");
+        System.out.print("  ");
+        for (int i = 1; i <= cinemaArray[0].length; i++) {
+            System.out.print(i + " ");
+        }
+        System.out.println();
+        for (int i = 0; i < cinemaArray.length; i++) {
+            System.out.print(i + 1 + " ");
+            for (int j = 0; j < cinemaArray[i].length; j++) {
+                System.out.print(cinemaArray[i][j] + " ");
+            }
+            System.out.println();
+        }
+        menu(cinemaArray);
+        return;
+    }
+
+    public static void buyTickets(String[][] cinemaArray) {
+        System.out.println("\nEnter a row number:");
+        int rowNumber = scanner.nextInt();
+        System.out.println("Enter a seat number in that row:");
+        int seatNumber = scanner.nextInt();
+        if (rowNumber <= 0 || rowNumber > cinemaArray.length ||
+                seatNumber <= 0 || seatNumber > cinemaArray[rowNumber - 1].length) {
+            System.out.println("Wrong input!");
+            buyTickets(cinemaArray);
+            return;
+        }
+        if (cinemaArray[rowNumber - 1][seatNumber - 1] == "B") {
+            System.out.println("That ticket has already been purchased!");
+            buyTickets(cinemaArray);
+            return;
+        }
+        cinemaArray[rowNumber - 1][seatNumber - 1] = "B";
+        int ticketPrice = ticketPrice(rowNumber, seatNumber, cinemaArray);
+        System.out.println("Ticket price: " + "$" + ticketPrice);
+        currentIncome += ticketPrice;
+        countTickets++;
+        menu(cinemaArray);
+        return;
+    }
+
+    public static int ticketPrice(int rowNumber, int seatNumber, String[][] cinemaArray) {
+        int ticketPrice = 0;
+        if (cinemaArray.length * cinemaArray[0].length <= 60) {
+            ticketPrice = 10;
+        } else {
+            if (rowNumber <= cinemaArray.length / 2) {
+                ticketPrice = 10;
+            } else {
+                ticketPrice = 8;
+            }
+        }
+        return ticketPrice;
+    }
+}
