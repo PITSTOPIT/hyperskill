@@ -15,7 +15,7 @@ public class Main {
 
     public static void binStrToZeroes(String binStr) {
         for (int i = 0; i < binStr.length(); ) {
-            System.out.print(currentCymbol(binStr.charAt(i)));
+            System.out.print(currentSymbol(binStr.charAt(i)));
             int count = 1;
             int zeroNumber = counter(binStr, i);
             for (int j = 1; j <= zeroNumber; j++) {
@@ -44,7 +44,7 @@ public class Main {
         return count;
     }
 
-    public static String currentCymbol(char ch) {
+    public static String currentSymbol(char ch) {
         if (ch == '1') {
             return "0 ";
         } else {
