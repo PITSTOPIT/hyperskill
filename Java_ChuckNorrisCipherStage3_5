@@ -10,6 +10,7 @@ public class Main {
         for (int i = 0; i < str.length(); i++) {
             binStr += String.format("%7s", Integer.toBinaryString(str.charAt(i))).replace(" ", "0");
         }
+        scanner.close();
         binStrToZeroes(binStr);
     }
 
