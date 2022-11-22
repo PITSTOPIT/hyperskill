@@ -1,0 +1,154 @@
+package chucknorris;
+import java.util.*;
+
+public class Main {
+    final static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        menu();
+    }
+
+    public static void menu() {
+
+        while (true) {
+            System.out.println("\nPlease input operation (encode/decode/exit):");
+
+            String inp = scanner.nextLine();
+            switch (inp) {
+                case "encode":
+                    encoding();
+                    break;
+                case "decode":
+                    decoding();
+                    break;
+                case "exit":
+                    scanner.close();
+                    System.out.println("Bye!");
+                    System.exit(0);
+                default:
+                    System.out.println("There is no '" + inp + "' operation");
+                    break;
+            }
+        }
+    }
+
+    public static void encoding() {
+
+        System.out.println("Input string:");
+        String str = scanner.nextLine();
+        String binStr = "";
+        System.out.println("Encoded string:");
+        for (int i = 0; i < str.length(); i++) {
+            binStr += String.format("%7s", Integer.toBinaryString(str.charAt(i))).replace(" ", "0");
+        }
+        binStrToZeroes(binStr);
+    }
+
+    public static void binStrToZeroes(String binStr) {
+        for (int i = 0; i < binStr.length(); ) {
+            System.out.print(currentSymbol(binStr.charAt(i)));
+            int count = 1;
+            int zeroNumber = counter(binStr, i);
+            for (int j = 1; j <= zeroNumber; j++) {
+                System.out.print("0");
+            }
+            i += zeroNumber;
+            System.out.print(" ");
+
+        }
+        System.out.println();
+    }
+
+    public static int counter(String binStr, int i) {
+        int count = 1;
+        if (i == binStr.length() - 1) {
+            return 1;
+        } else {
+            for (int j = i; j < binStr.length() - 1; j++) {
+                if (binStr.charAt(j) == binStr.charAt(j + 1)) {
+                    count++;
+                } else {
+                    return count;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    public static String currentSymbol(char ch) {
+        if (ch == '1') {
+            return "0 ";
+        } else {
+            return "00 ";
+        }
+    }
+
+
+    public static void getCharString(String binaryString) {
+        String charString = "";
+        for (int i = 0; i < binaryString.length() / 7; i++) {
+            int a = Integer.parseInt(binaryString.substring(7 * i, (i + 1) * 7), 2);
+            charString += (char) (a);
+        }
+        System.out.println(charString);
+    }
+
+    public static String getBinaryStringFromZeroes(String[] strArray) {
+        String binaryString = "";
+
+        for (int i = 0; i < strArray.length; i++) {
+            int curSmbl = currentSymbol(strArray[i]);
+            for (int j = 0; j < (strArray[i + 1].length()); j++) {
+                binaryString += curSmbl;
+            }
+            i++;
+        }
+        return binaryString;
+    }
+
+    public static void decoding() {
+        System.out.println("Input encoded string:");
+        StringBuilder notValidMessage = new StringBuilder("Encoded string is not valid.");
+        String str = scanner.nextLine();
+        String[] strArray = str.split(" ");
+        if (validForDecoding(strArray)) {
+            String binaryString = getBinaryStringFromZeroes(strArray);
+            System.out.println("Decoded string:");
+            getCharString(binaryString);
+        } else {
+
+            System.out.println(notValidMessage);
+        }
+    }
+
+    public static boolean validForDecoding(String[] strArray) {
+        for (int i = 0; i < strArray.length; i++) {
+            if (!"0000000".contains(strArray[i])) {
+                return false;
+            }
+        }
+        for (int i = 0; i < strArray.length; i++) {
+            if (strArray[i].length() > 2) {
+                return false;
+            }
+
+            i++;
+        }
+        if (strArray.length % 2 == 1) {
+            return false;
+        } else if (getBinaryStringFromZeroes(strArray).length() % 7 != 0) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public static int currentSymbol(String strSmbl) {
+        if (strSmbl.equals("0")) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+}
