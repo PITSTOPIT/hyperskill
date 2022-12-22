@@ -1,0 +1,185 @@
+package bullscows;
+
+import java.util.Random;
+import java.util.Scanner;
+
+public class Main {
+    public static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+
+
+        enteringSecretCodeLength();
+
+
+    }
+
+    public static void enteringSecretCodeLength() {
+        System.out.println("Input the length of the secret code:");
+        int secretDigitsLength = returnDigit();
+        if (secretDigitsLength > 0) {
+            System.out.println("Input the number of possible symbols in the code:");
+
+        } else {
+            System.out.println("error");
+            return;
+        }
+
+        int secretCodeSymbolsNumber = returnDigit();
+        if (secretCodeSymbolsNumber > 36) {
+            System.out.println("Error: maximum number of possible symbols in the code is 36 (0-9, a-z).");
+            return;
+        } else if (secretDigitsLength > secretCodeSymbolsNumber) {
+            StringBuilder sbMessage = new StringBuilder();
+            sbMessage.append("Error: it's not possible to generate a code with a length of ").
+                    append(secretDigitsLength).append(" with ").
+                    append(secretCodeSymbolsNumber).
+                    append(" unique symbols.");
+            System.out.println(sbMessage);
+            return;
+        }
+        String secretCode = snGenerator(secretDigitsLength, secretCodeSymbolsNumber);
+        System.out.println(prepareSecretCodeString(secretDigitsLength, secretCodeSymbolsNumber));
+        System.out.println("Okay, let's start a game!");
+        gameProcessing(secretCode);
+
+
+    }
+
+    public static int returnDigit() {
+        String inpSecretCode = scanner.nextLine();
+        int parsedIfDigit = -1;
+        if (!isAdigit(inpSecretCode)) {
+            StringBuilder sbMessage = new StringBuilder();
+            sbMessage.append("Error: \"").append(inpSecretCode).append("\" isn't a valid number.");
+            System.out.println(sbMessage);
+            System.exit(0);
+        }
+        return parsedIfDigit = Integer.parseInt(inpSecretCode);
+
+    }
+
+    public static boolean isAdigit(String inpSecretCode) {
+        for (int i = 0; i < inpSecretCode.length(); i++) {
+            if (!Character.isDigit(inpSecretCode.charAt(i)))
+                return false;
+        }
+        return true;
+    }
+
+
+    public static String prepareSecretCodeString(int secretDigitsLength, int secretCodeSymbolsNumber) {
+        String charSet = "0123456789abcdefghijklmnopqrstuvwxyz";
+        StringBuilder retString = new StringBuilder();
+        retString.append("The secret is prepared: ");
+        for (int i = 0; i < secretDigitsLength; i++) {
+            retString.append('*');
+        }
+        retString.append(" (0");
+        if (secretCodeSymbolsNumber == 11) {
+            retString.append("-9, a");
+        } else if (secretCodeSymbolsNumber > 11) {
+            retString.append("-9, a-").append(charSet.charAt(secretCodeSymbolsNumber - 1));
+        } else if (secretCodeSymbolsNumber > 1 && secretCodeSymbolsNumber <= 10) {
+            retString.append("-").append(secretCodeSymbolsNumber - 1);
+        }
+        retString.append(").");
+        return String.valueOf(retString);
+    }
+
+    public static void gameProcessing(String secretCode) {
+//        scanner.nextLine();
+        int count = 1;
+        int bulls = 0;
+        int cows = 0;
+        while (bulls != secretCode.length()) {
+            System.out.printf("Turn %s:\n", count);
+            String inp = scanner.nextLine();
+            if (inp.length() == secretCode.length()) {
+                bulls = findBulls(secretCode, inp);
+                cows = findCows(secretCode, inp);
+                grade(bulls, cows, secretCode);
+                count++;
+            } else {
+                System.out.println("Incorrect input length!");
+            }
+
+        }
+        System.out.println("Congratulations! You guessed the secret code.");
+    }
+
+    public static String snGenerator(int secretDigitsLength, int secretCodeSymbolsNumber) {
+        Random random = new Random();
+        StringBuilder sn = new StringBuilder();
+        String charSet = "0123456789abcdefghijklmnopqrstuvwxyz";
+        int counter = 0;
+        if (secretDigitsLength > 0 && secretCodeSymbolsNumber > 0) {
+            sn.append(charSet.charAt(random.nextInt(0, secretCodeSymbolsNumber - 1)));
+            counter++;
+            if (secretDigitsLength == 1) {
+                return String.valueOf(sn);
+            }
+        }
+        while (true) {
+            StringBuilder pattern = new StringBuilder();
+            pattern.append(charSet.charAt(random.nextInt(0, secretCodeSymbolsNumber + 1)));
+            if (!String.valueOf(sn).contains(pattern)) {
+                sn.append(pattern);
+                counter++;
+            }
+            if (counter == secretDigitsLength) {
+                return String.valueOf(sn);
+            }
+        }
+    }
+
+    public static int findCows(String secretCode, String inp) {
+        int countCows = 0;
+        for (int i = 0; i < secretCode.length(); i++) {
+            for (int j = 0; j < secretCode.length(); j++) {
+                if (j == i) {
+                    continue;
+                } else if (secretCode.charAt(i) == inp.charAt(j)) {
+                    countCows++;
+                }
+            }
+        }
+        return countCows;
+    }
+
+    public static int findBulls(String secretCode, String inp) {
+        int countBulls = 0;
+        for (int i = 0; i < secretCode.length(); i++) {
+            if (inp.charAt(i) == secretCode.charAt(i)) {
+                countBulls++;
+            }
+        }
+        return countBulls;
+    }
+
+    public static void grade(int bulls, int cows, String secretCode) {
+        String cowStr = "";
+        String bullStr = "";
+        if (bulls == 1) {
+            bullStr = "bull";
+        } else {
+            bullStr = "bulls";
+        }
+        if (cows == 1) {
+            cowStr = " cows";
+        } else {
+            cowStr = " cows";
+        }
+
+
+        if (bulls == 0 && cows == 0) {
+            System.out.println("Grade: None.");
+        } else if (bulls == 0 && cows > 0) {
+            System.out.println("Grade: " + cows + cowStr);
+        } else if (bulls > 0 && cows == 0) {
+            System.out.println("Grade: " + bulls + " bull(s).");
+        } else {
+            System.out.println("Grade: " + bulls + " bull(s) and " + cows + "cow(s).");
+        }
+    }
+}
