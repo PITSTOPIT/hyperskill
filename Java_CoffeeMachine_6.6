@@ -1,0 +1,177 @@
+import java.util.*;
+
+public class CoffeeMachine {
+    private int waterInTray;
+    private int milkInTray;
+    private int coffeeBeensInTray;
+    private int cupsInTray;
+    private int moneyInTray;
+
+    private static final Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        CoffeeMachine coffeeMachine = new CoffeeMachine();
+        coffeeMachine.setFixedAmountOfIngridients();
+        menu(coffeeMachine);
+    }
+
+    public int getMoneyInTray() {
+        return this.moneyInTray;
+    }
+
+    public void setMoneyInTray(int moneyInTray) {
+        this.moneyInTray += moneyInTray;
+    }
+
+    public int getWaterInTray() {
+        return this.waterInTray;
+    }
+
+    public void setWaterInTray(int waterInTray) {
+        this.waterInTray += waterInTray;
+    }
+
+    public int getMilkInTray() {
+        return milkInTray;
+    }
+
+    public void setMilkInTray(int milkInTray) {
+        this.milkInTray += milkInTray;
+    }
+
+    public int getCoffeeBeensInTray() {
+        return this.coffeeBeensInTray;
+    }
+
+    public void setCoffeeBeensInTray(int coffeeBeensInTray) {
+        this.coffeeBeensInTray += coffeeBeensInTray;
+    }
+
+    public int getCupsInTray() {
+        return this.cupsInTray;
+    }
+
+    public void setCupsInTray(int cupsInTray) {
+        this.cupsInTray += cupsInTray;
+    }
+
+    public void fillSupplies(CoffeeMachine coffeeMachine) {
+        System.out.println("\nWrite how many ml of water you want to add: ");
+        setWaterInTray(scanner.nextInt());
+        System.out.println("Write how many ml of milk you want to add: ");
+        setMilkInTray(scanner.nextInt());
+        System.out.println("Write how many grams of coffee beans you want to add: ");
+        setCoffeeBeensInTray(scanner.nextInt());
+        System.out.println("Write how many disposable cups you want to add: ");
+        setCupsInTray(scanner.nextInt());
+        scanner.nextLine();
+        menu(coffeeMachine);
+    }
+
+    public void remaining(CoffeeMachine coffeeMachine) {
+        System.out.println("\nThe coffee machine has:");
+        System.out.println(getWaterInTray() + " ml of water");
+        System.out.println(getMilkInTray() + " ml of milk");
+        System.out.println(getCoffeeBeensInTray() + " g of coffee beans");
+        System.out.println(getCupsInTray() + " disposable cups");
+        System.out.println("$" + getMoneyInTray() + " of money");
+        menu(coffeeMachine);
+    }
+
+    public void setFixedAmountOfIngridients() {
+        setWaterInTray(400);
+        setMilkInTray(540);
+        setCoffeeBeensInTray(120);
+        setCupsInTray(9);
+        setMoneyInTray(550);
+    }
+
+    public static void menu(CoffeeMachine coffeeMachine) {
+        System.out.println("\nWrite action (buy, fill, take, remaining, exit):");
+        String option = scanner.nextLine();
+        switch (option) {
+            case "buy":
+                coffeeMachine.buyADrink(coffeeMachine);
+                break;
+            case "fill":
+                coffeeMachine.fillSupplies(coffeeMachine);
+                break;
+            case "take":
+                coffeeMachine.takeMoney(coffeeMachine);
+                break;
+            case "remaining":
+                coffeeMachine.remaining(coffeeMachine);
+                break;
+            case "exit":
+                System.exit(0);
+                break;
+            default:
+                System.out.println("there's no such option as " + option);
+                menu(coffeeMachine);
+                break;
+
+        }
+    }
+
+    public void buyADrink(CoffeeMachine coffeeMachine) {
+        System.out.println("What do you want to buy? 1 - espresso, 2 - latte, 3 - cappuccino, back - to main menu: ");
+        String option = scanner.nextLine();
+        switch (option) {
+            case "1":
+                if (testSuppliesAvailable(250,0,16, 1)) {
+                    makeDrink(250,0,16, 1, 4);
+                }
+                break;
+            case "2":
+                if (testSuppliesAvailable(350,75,20, 1)) {
+                    makeDrink(350,75,20, 1, 7);
+                }
+                break;
+            case "3":
+                if (testSuppliesAvailable(200,100,12, 1)) {
+                    makeDrink(200,100,12, 1, 6);
+                }
+                break;
+            case "back":
+                menu(coffeeMachine);
+            default:
+                System.out.println("there's no such option as " + option);
+                break;
+        }
+        menu(coffeeMachine);
+    }
+
+    public void takeMoney(CoffeeMachine coffeeMachine) {
+        System.out.println("I gave you $" + getMoneyInTray());
+        setMoneyInTray(-getMoneyInTray());
+        menu(coffeeMachine);
+    }
+
+    public boolean testSuppliesAvailable(int waterInTray, int milkInTray, int coffeeBeensInTray, int cupsInTray) {
+        boolean availability = true;
+        if (waterInTray > this.waterInTray) {
+            System.out.println("Sorry, not enough water!");
+            availability = false;
+        } else if (milkInTray > this.milkInTray) {
+            System.out.println("Sorry, not enough milk!");
+            availability = false;
+        } else if (coffeeBeensInTray > this.coffeeBeensInTray) {
+            System.out.println("Sorry, not enough coffee beans!");
+            availability = false;
+        } else if (cupsInTray > this.cupsInTray) {
+            System.out.println("Sorry, not enough disposable cups");
+            availability = false;
+        }
+        System.out.println("I have enough resources, making you a coffee!");
+        return availability;
+    }
+    public void makeDrink(int water, int milk, int coffeeBeens, int cups, int money) {
+        setWaterInTray(-water);
+        setMilkInTray(-milk);
+        setCoffeeBeensInTray(-coffeeBeens);
+        setCupsInTray(-cups);
+        setMoneyInTray(money);
+    }
+
+}
+
