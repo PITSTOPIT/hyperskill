@@ -1,0 +1,203 @@
+package rockpaperscissors;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.*;
+
+enum UserResult {
+    LOSS, DRAW, WIN
+}
+
+class RockPaperScissors {
+    public final static Scanner scanner = new Scanner(System.in);
+    private String userName;
+    private int userRating;
+    private String[] gameOptions;
+
+    public void setGameOptions(String[] gameOptions) {
+        this.gameOptions = gameOptions;
+        System.out.println("Okay, let's start");
+    }
+
+
+    public String[] getGameOptions() {
+        return gameOptions;
+    }
+
+    public int getUserRating() {
+        return userRating;
+    }
+
+    public void setUserRating(int userRating) {
+        this.userRating = userRating;
+    }
+
+    public RockPaperScissors() {
+        this.userRating = 0;
+    }
+
+
+    public String userChoice(RockPaperScissors game) {
+        String userChoice = null;
+        while (true) {
+            String input = scanner.nextLine().toLowerCase();
+            if (input.equals("!exit")) {
+                System.out.println("Bye!");
+                System.exit(0);
+            } else if (input.equals("!rating")) {
+                System.out.println(getUserRating());
+                gameProcessing(game);
+                break;
+            } else if (!isInGameOptionsList(input, game)) {
+                System.out.println("Invalid input");
+            } else {
+                userChoice = input;
+                break;
+            }
+        }
+            return userChoice;
+    }
+
+    public boolean isInGameOptionsList(String userChoice, RockPaperScissors game) {
+        for (String str : game.getGameOptions()) {
+            if (str.equals(userChoice)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static void startGame() {
+        RockPaperScissors game = new RockPaperScissors();
+        System.out.print("Enter your name: ");
+        game.userName = scanner.nextLine();
+        System.out.printf("Hello, %s\n", game.userName);
+        File ratingFile = new File("rating.txt");
+        try {
+            game.ratingReader(game.userName, ratingFile);
+        } catch (IOException e) {
+            System.out.println("Exception occurred " + e);
+        }
+        game.setGameOptions(setUpGameOptions());
+
+        gameProcessing(game);
+    }
+
+    public static String[] setUpGameOptions() {
+        String defaultOptionsList = "rock,paper,scissors";
+        String userOptionsList = scanner.nextLine();
+        String[] optionsArray;
+        if (userOptionsList.equals("")) {
+            optionsArray = defaultOptionsList.split(",");
+        } else {
+            optionsArray = userOptionsList.split(",");
+        }
+        return optionsArray;
+    }
+
+    public static void gameProcessing(RockPaperScissors game) {
+        String computerChoice = game.computerChoice(game);
+        String userChoice = game.userChoice(game);
+        ArrayList<String> strongerOptionsList = game.strongerOptionsList(game, userChoice);
+        UserResult userResult = game.getUserResult(strongerOptionsList, userChoice, computerChoice);
+        System.out.println(game.printResultMessage(userResult, computerChoice));
+        game.scoring(userResult);
+        game.continueGame(game);
+    }
+    
+    public UserResult getUserResult (ArrayList<String> strongerOptionsList, String userChoice, String computerChoice){
+        UserResult userResult;
+        if (computerChoice.equals(userChoice)) {
+            userResult = UserResult.DRAW;
+        } else if (strongerOptionsList.contains(computerChoice)){
+            userResult = UserResult.LOSS;
+        } else {
+            userResult = UserResult.WIN;
+        }
+        return userResult;
+    }
+    
+    public ArrayList<String> strongerOptionsList(RockPaperScissors game, String userChoice) {
+        ArrayList<String> strongOptions = new ArrayList<>();
+        int indexOfUserChoice = getUserChoiceIndexInOptionsList(game, userChoice);
+        int count = (game.getGameOptions().length - 1) / 2;
+        if (game.getGameOptions().length - 1 > indexOfUserChoice) {
+            for (int i = indexOfUserChoice + 1; count > 0; count--, i++) {
+                if (i == game.getGameOptions().length - 1) {
+                    strongOptions.add(game.getGameOptions()[i]);
+                    i = -1;
+                } else {
+                    strongOptions.add(game.getGameOptions()[i]);
+                }
+            }
+        } else {
+            for (int i = 0; count > 0; count--, i++) {
+                strongOptions.add(game.getGameOptions()[i]);
+            }
+        }
+        return strongOptions;
+    }
+
+    public int getUserChoiceIndexInOptionsList(RockPaperScissors game, String userChoice) {
+        int userChoiceIndex = 0;
+        for (int i = 0; i < game.getGameOptions().length; i++) {
+            if (game.getGameOptions()[i].equals(userChoice)) {
+                userChoiceIndex = i;
+                break;
+            }
+        }
+        return userChoiceIndex;
+    }
+
+    public void continueGame(RockPaperScissors game) {
+        gameProcessing(game);
+    }
+
+    public void scoring(UserResult userResult) {
+        switch (userResult) {
+            case WIN -> setUserRating(getUserRating() + 100);
+            case DRAW -> setUserRating(getUserRating() + 50);
+//            case LOSS -> setUserRating(getUserRating() + 0);
+        }
+    }
+
+    public String computerChoice(RockPaperScissors game) {
+        Random random = new Random();
+        int randomChoice = random.nextInt(0, gameOptions.length);
+        return game.getGameOptions()[randomChoice];
+    }
+    
+    public String printResultMessage(UserResult userResult, String computerChoice) {
+        String resultMessage = null;
+        switch (userResult) {
+            case LOSS -> resultMessage = "Sorry, but the computer chose %s"
+                    .formatted(computerChoice.toLowerCase());
+            case DRAW -> resultMessage = "There is a draw (%s)"
+                    .formatted(computerChoice.toLowerCase());
+            case WIN -> resultMessage = "Well done. The computer chose %s and failed"
+                    .formatted(computerChoice.toLowerCase());
+        }
+        return resultMessage;
+
+    }
+
+    public void ratingReader(String userName, File filePath) throws IOException {
+        FileReader fileReader = new FileReader(filePath);
+        Scanner fileScanner = new Scanner(filePath);
+        int storedScore = 0;
+        while (fileScanner.hasNext()) {
+            String tempStr = fileScanner.next();
+            if (tempStr.contains(userName)) {
+                storedScore = Integer.parseInt(fileScanner.next());
+            }
+
+        }
+        setUserRating(storedScore);
+        fileReader.close();
+        fileScanner.close();
+    }
+
+    public static void main(String[] args) {
+        startGame();
+    }
+}
